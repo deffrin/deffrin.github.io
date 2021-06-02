@@ -1,0 +1,100 @@
+<h1 id="how-to-create-a-phpunit-feature-test-in-laravel-8">How to create a phpunit feature test in laravel 8</h1>
+
+<p><strong>Phpunit</strong> is a unit testing framework created by Sebastian Bergmann. Laravel has built-in feature for testing using phpunit.</p>
+
+<p>After installing a laravel application you can see a folder named <strong>tests</strong>. In that <strong>tests</strong> folder you can see two folders named <strong>Feature</strong> and <strong>Unit</strong>. <strong>Feature</strong> folder will contain tests used to test certain features like creating a user in the admin dashboard.
+Your majority of tests will be written in <strong>Feature</strong> folder as feature tests.</p>
+
+<h1 id="how-to-run-phpunit-tests">How to run phpunit tests</h1>
+
+<p>For running phpunit either <strong>vendor/bin/phpunit</strong> or  <strong>php artisan test</strong> can be used. I prefer the php artisan test use to run tests since it creates a beautiful response, but vendor/bin/phpunit method is suggested by many.</p>
+
+<h1 id="before-running-phpunit-test">Before running phpunit test</h1>
+
+<p>Create a <strong>.env.testing</strong> file in the root directory and add .env.testing to your <strong>.gitignore</strong> file. The config values stored in this file will be used while phpunit tests instead of .env. Set APP_URL=http://localhost in the .env.testing file.</p>
+
+<h1 id="creating-a-new-unit-test">Creating a new unit test</h1>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+	php artisan make:test AdminRegistrationTest
+
+</code></pre></div></div>
+
+<p>Run this in terminal in the application root directory. A file named AdminRegistrationTest will be created in the directory <strong>tests/Feature</strong>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+	&lt;?php
+
+	namespace Tests\Feature;
+
+	use App\Models\User;
+	use Illuminate\Foundation\Testing\RefreshDatabase;
+	use Tests\TestCase;
+
+	class AdminRegistrationTest extends TestCase
+	{
+	    use RefreshDatabase;
+
+	    /**
+	     * Test admin user create form
+	     *
+	     * @return void
+	     */
+	    public function test_admin_user_create()
+	    {
+	        $this-&gt;seed();
+
+	        $user = User::find(1);
+
+	        $response = $this-&gt;actingAs($user)
+	            -&gt;post('/admin/create', [
+	                'name' =&gt; 'Deffrin Joseph',
+	                'email' =&gt; 'deffrin@gmail.com',
+	                'password' =&gt; 'password',
+	                'password_confirmation' =&gt; 'password'
+	            ]);
+
+	        $response-&gt;assertRedirect('/admin/list');
+	    }
+	}
+
+</code></pre></div></div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The above test will run
+
+1, database seeders
+
+```
+	$this-&gt;seed();
+```
+
+2, find the user having id equal to 1
+```
+	$user = User::find(1);
+```
+
+3, create a session for that user
+```
+	$this-&gt;actingAs($user) 
+```
+
+4, submit a post request to the /admin/create url. name, email, password, password_confirmation must be the names of the form fields
+
+```
+	-&gt;post('/admin/create', [
+                'name' =&gt; 'Deffrin Joseph',
+                'email' =&gt; 'deffrin@gmail.com',
+                'password' =&gt; 'password',
+                'password_confirmation' =&gt; 'password'
+            ])
+```
+
+5, assert after creating admin whether the page redirects to /admin/list page or not
+
+```
+	$response-&gt;assertRedirect('/admin/list');
+```
+</code></pre></div></div>
+
+<p>After creating tests as mentioned earlier run <strong>php artisan test</strong> all your tests will run then.</p>
+
+<p>Creating unit tests while developing application is a best practice the developers need to follow. For everyone who uses Laravel to build web applications can utilize phpunit and more stable applications and make maintaining the application much simple.</p>
